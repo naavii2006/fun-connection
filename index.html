@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Relationship % — Friends / Love / Enemies</title>
+  <style>
+    :root{
+      --bg1:#fff0f4;
+      --bg2:#f0fbff;
+      --accent:#ff3b82;
+      --card:#ffffff;
+      --muted:#6b6b6b;
+      --ink:#111;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial;
+      background:linear-gradient(135deg,var(--bg1),var(--bg2));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+      color:var(--ink);
+    }
+
+    .card{
+      width:min(820px,96vw);
+      background:var(--card);
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(10,10,10,0.12);
+      overflow:hidden;
+    }
+
+    .header{
+      padding:22px 24px;
+      border-bottom:1px solid rgba(0,0,0,0.06);
+      background:
+        radial-gradient(900px 300px at 100% -30%, rgba(255,60,130,0.12), transparent 50%),
+        radial-gradient(700px 280px at -10% 120%, rgba(255,200,240,0.18), transparent 50%);
+    }
+    .title{margin:0;font-size:1.4rem;letter-spacing:0.2px}
+    .sub{margin:6px 0 0;color:var(--muted);font-size:0.95rem}
+
+    .body{padding:18px 20px 26px;display:grid;gap:12px}
+
+    .row{display:grid;gap:10px;grid-template-columns:1fr}
+    @media(min-width:720px){ .row{grid-template-columns: 1fr 1fr} }
+
+    .controls{display:grid;gap:12px;grid-template-columns:1fr}
+    @media(min-width:720px){ .controls{grid-template-columns: 1fr 220px} }
+
+    label{display:block;font-size:0.88rem;color:var(--muted);margin-bottom:6px}
+    input[type="text"], select{
+      width:100%;
+      padding:12px 14px;
+      border-radius:10px;
+      border:1px solid rgba(0,0,0,0.08);
+      font-size:1rem;
+      outline:none;
+      background:#fff;
+      transition:box-shadow .18s, border-color .18s;
+    }
+    input[type="text"]:focus, select:focus{
+      border-color:var(--accent);
+      box-shadow:0 6px 20px rgba(255,59,130,0.08);
+    }
+
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    button{
+      padding:12px 16px;border-radius:10px;border:0;cursor:pointer;
+      font-weight:700;background:var(--accent);color:#fff;
+      box-shadow:0 8px 20px rgba(255,59,130,0.18);
+      transition:transform .06s ease;
+    }
+    button:active{transform:translateY(1px)}
+    .ghost{background:#eef2f8;color:#333;box-shadow:none;font-weight:600}
+
+    .resultBox{
+      margin-top:12px;padding:16px;border-radius:12px;background:#fff;border:1px dashed rgba(0,0,0,0.06);
+      display:flex;align-items:center;gap:14px;
+    }
+
+    .percent{
+      font-size:2.6rem;font-weight:900;line-height:1;color:var(--accent);
+      width:140px;text-align:center;padding:10px;border-radius:10px;
+      background:linear-gradient(180deg, rgba(255,59,130,0.06), rgba(255,59,130,0.02));
+      box-shadow:0 8px 20px rgba(255,59,130,0.06);
+      transform-origin:center;
+      animation: pop .35s cubic-bezier(.2,.9,.3,1);
+    }
+
+    @keyframes pop {
+      from { transform: scale(.6); opacity:0 }
+      to { transform: scale(1); opacity:1 }
+    }
+
+    .label{font-size:1.05rem;font-weight:700}
+    .muted{color:var(--muted);font-size:0.95rem}
+
+    .small{font-size:0.9rem;color:var(--muted)}
+    footer{padding:14px 20px;border-top:1px solid rgba(0,0,0,0.04);text-align:center;color:var(--muted);font-size:0.9rem}
+
+    /* simple confetti */
+    .confetti {
+      pointer-events: none;
+      position: fixed;
+      left: 0; top: 0; width: 100%; height: 100%;
+      overflow: visible;
+      z-index: 9999;
+    }
+    .confetti .piece {
+      position: absolute;
+      width: 10px; height: 16px;
+      opacity: 0.95;
+      transform-origin: center;
+      will-change: transform, top, left;
+    }
+  </style>
+</head>
+<body>
+  <main class="card" role="main" aria-labelledby="mainTitle">
+    <header class="header">
+      <h1 id="mainTitle" class="title">How Strong Is Your Connection?</h1>
+      <p class="sub">We insert a themed word between names (e.g., FRIENDS) and compute a playful percentage. For fun only.</p>
+    </header>
+
+    <section class="body">
+      <div class="row">
+        <div>
+          <label for="name1">First name</label>
+          <input id="name1" type="text" inputmode="text" placeholder="" autocomplete="off" />
+        </div>
+        <div>
+          <label for="name2">Second name</label>
+          <input id="name2" type="text" inputmode="text" placeholder="" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="controls">
+        <div>
+          <label for="relation">Relationship type</label>
+          <select id="relation" aria-label="relationship type">
+            <option value="friends">Friends</option>
+            <option value="love">Love</option>
+            <option value="enemies">Enemies</option>
+            <option value="siblings">Siblings</option>
+            <option value="marriage">Marriage</option>
+            <option value="crush">Crush</option>
+            <option value="business">Business</option>
+          </select>
+        </div>
+
+        <div style="display:flex;align-items:end;gap:10px">
+          <div class="actions" style="margin:0">
+            <button id="calcBtn" aria-label="calculate percentage">Calculate %</button>
+            <!-- <button id="demoBtn" class="ghost" title="Fill example">Try example</button> -->
+            <button id="clearBtn" class="ghost">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="resultArea" style="display:none;" aria-live="polite">
+        <div class="resultBox" role="status">
+          <div class="percent" id="percentEl">0%</div>
+          <div>
+            <div class="label" id="labelEl">—</div>
+            <div class="muted small" id="pairEl"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>Entertainment — all results are for fun 😄</footer>
+  </main>
+
+  <div id="confetti" class="confetti" aria-hidden="true"></div>
+
+  <!-- <script>
+    /* ------------------ algorithm helpers ------------------ */
+    function onlyLetters(str){
+      return (str || "").toUpperCase().replace(/[^A-Z]/g, "");
+    }
+
+    function frequencySequenceUniqueOrdered(phrase){
+      const clean = onlyLetters(phrase);
+      const counts = Object.create(null);
+      for (const ch of clean) counts[ch] = (counts[ch] || 0) + 1;
+      const seen = new Set();
+      const seq = [];
+      for (const ch of clean) {
+        if (!seen.has(ch)) {
+          seq.push(counts[ch]);
+          seen.add(ch);
+        }
+      }
+      return seq;
+    }
+
+    function outsideInsideReduce(arr){
+      const next = [];
+      let i = 0, j = arr.length - 1;
+      while (i < j) { next.push(arr[i] + arr[j]); i++; j--; }
+      if (i === j) next.push(arr[i]);
+      return next;
+    }
+
+    function reduceUntilTwoDigitsOr100(initial){
+      let seq = initial.slice();
+      // reduce until two numbers left
+      while (seq.length > 2) {
+        seq = outsideInsideReduce(seq);
+      }
+      let percentStr = String(seq[0]) + String(seq[1]);
+
+      // if not length 2 and not "100", reduce digits
+      while (percentStr.length !== 2 && percentStr !== "100") {
+        let digits = percentStr.split("").map(d => parseInt(d,10));
+        while (digits.length > 2) {
+          digits = outsideInsideReduce(digits);
+        }
+        percentStr = String(digits[0]) + String(digits[1]);
+      }
+      return parseInt(percentStr, 10);
+    }
+
+    /* ---------- mapping for inserted word & labels ---------- */
+    const insertWordMap = {
+      friends: "FRIENDS",
+      love: "LOVE",
+      enemies: "ENEMIES",
+      siblings: "SIBLINGS",
+      marriage: "MARRIAGE",
+      crush: "CRUSH",
+      business: "BUSINESS"
+    };
+
+    // label function per relation
+    function labelFor(relation, percent){
+      // You can customize messages per relation & ranges
+      if (relation === "love"){
+        if (percent >= 90) return "Soulmates ❤️";
+        if (percent >= 70) return "Strong Love 💖";
+        if (percent >= 50) return "Lovely Pair 💕";
+        if (percent >= 30) return "Potential Crush 😳";
+        return "Just Friends (for now) 🙂";
+      }
+      if (relation === "enemies"){
+        if (percent >= 80) return "Arch Rivals 💥";
+        if (percent >= 50) return "Sparring Partners ⚔️";
+        return "Mostly Neutral 😐";
+      }
+      if (relation === "marriage"){
+        if (percent >= 85) return "Highly Compatible 💍";
+        if (percent >= 60) return "Good Match 💒";
+        if (percent >= 40) return "Possibly Okay 🤔";
+        return "Not Likely 🚫";
+      }
+      if (relation === "siblings"){
+        if (percent >= 80) return "Like Siblings 👨‍👩‍👧";
+        if (percent >= 50) return "Family Vibes 🏡";
+        return "Not Very Sibling-y 😅";
+      }
+      if (relation === "crush"){
+        if (percent >= 80) return "Crush Alert 💘";
+        if (percent >= 50) return "Cute Interest 😊";
+        return "Low Crush Level 😶";
+      }
+      if (relation === "business"){
+        if (percent >= 85) return "Power Partners 📈";
+        if (percent >= 60) return "Good Collaborators 🤝";
+        if (percent >= 40) return "Maybe Work Together 🧠";
+        return "Not Great for Business ⚠️";
+      }
+      // default (friends)
+      if (percent >= 90) return "Unbreakable Bond ✨";
+      if (percent >= 75) return "Besties Forever 🤝";
+      if (percent >= 60) return "Great Friends 😊";
+      if (percent >= 45) return "Good Pals 🙂";
+      if (percent >= 25) return "Casual Friends 👋";
+      return "Strange Pairing 🤨";
+    }
+
+    /* ------------------ compute + UI ------------------ */
+    const $ = id => document.getElementById(id);
+
+    function computeFromNames(n1, n2, relation){
+      const ins = insertWordMap[relation] || "FRIENDS";
+      const combined = onlyLetters(n1) + ins + onlyLetters(n2);
+      if (combined.replace(/[^A-Z]/g,'').length === 0) return null;
+      const freqSeq = frequencySequenceUniqueOrdered(combined);
+      const percent = reduceUntilTwoDigitsOr100(freqSeq);
+      return { percent, combined };
+    }
+
+    function showResult(n1, n2, relation){
+      const out = computeFromNames(n1, n2, relation);
+      const resultArea = $("resultArea");
+      if (!out) {
+        resultArea.style.display = "none";
+        alert("Please enter at least one valid letter in each name.");
+        return;
+      }
+
+      const p = out.percent;
+      const label = labelFor(relation, p);
+      $("percentEl").textContent = p + "%";
+      $("labelEl").textContent = label;
+      $("pairEl").textContent = `${n1.trim()}  +  ${n2.trim()}  (inserted: ${insertWordMap[relation]})`;
+      resultArea.style.display = "";
+      // little pop
+      $("percentEl").style.transform = "scale(0.82)";
+      setTimeout(()=> $("percentEl").style.transform = "scale(1)", 60);
+
+      if (p >= 80) {
+        fireConfetti();
+      }
+    }
+
+    /* --------------- events & wiring ---------------- */
+    $("calcBtn").addEventListener("click", () => {
+      showResult($("name1").value || "", $("name2").value || "", $("relation").value);
+    });
+
+    $("demoBtn").addEventListener("click", () => {
+      $("name1").value = "Mayur";
+      $("name2").value = "Sady";
+      $("relation").value = "friends";
+      showResult("Mayur","Sady","friends");
+    });
+
+    $("clearBtn").addEventListener("click", () => {
+      $("name1").value = "";
+      $("name2").value = "";
+      $("resultArea").style.display = "none";
+    });
+
+    // Enter key submits
+    for (const id of ["name1","name2"]) {
+      $(id).addEventListener("keydown", (e) => {
+        if (e.key === "Enter") $("calcBtn").click();
+      });
+    }
+
+    /* ---------------- simple confetti (tiny) -------------- */
+    function fireConfetti(){
+      const root = $("confetti");
+      root.innerHTML = "";
+      const colors = ["#ff3b82","#ffcc00","#00c2ff","#8a2be2","#00d177"];
+      const pieces = 36;
+      for (let i=0;i<pieces;i++){
+        const el = document.createElement("div");
+        el.className = "piece";
+        el.style.background = colors[i % colors.length];
+        // start position center-ish
+        const startX = window.innerWidth/2 + (Math.random()*200-100);
+        const startY = window.innerHeight/2 + (Math.random()*50-25);
+        el.style.left = startX + "px";
+        el.style.top = startY + "px";
+        el.style.transform = `rotate(${Math.random()*360}deg)`;
+        root.appendChild(el);
+        // animate using JS (simple)
+        const dx = (Math.random()*2-1)*800;
+        const dy = - (200 + Math.random()*800);
+        const rot = (Math.random()*720-360);
+        el.animate([
+          { transform: `translate(0px,0px) rotate(${Math.random()*360}deg)`, opacity:1 },
+          { transform: `translate(${dx}px, ${dy}px) rotate(${rot}deg)`, opacity:0 }
+        ], {
+          duration: 1200 + Math.random()*800,
+          easing: 'cubic-bezier(.1,.7,0,1)'
+        });
+        // remove after
+        setTimeout(()=> el.remove(), 2200);
+      }
+    }
+  </script> -->
+  <script src="script.js"></script>
+</body>
+</html>
